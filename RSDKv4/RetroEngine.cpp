@@ -1,5 +1,9 @@
 #include "RetroEngine.hpp"
 
+#if RETRO_PLATFORM == RETRO_WEB
+#include <emscripten.h>
+#endif
+
 #if !RETRO_USE_ORIGINAL_CODE
 bool usingCWD        = false;
 bool engineDebugMode = false;
