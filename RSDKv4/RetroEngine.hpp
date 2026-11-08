@@ -44,6 +44,10 @@ typedef unsigned int uint;
 #define RETRO_MOBILE   (1)
 
 #if defined _WIN32
+#if defined __EMSCRIPTEN__
+#define RETRO_PLATFORM   (RETRO_WEB)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#elif defined _WIN32
 
 #if defined WINAPI_FAMILY
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
