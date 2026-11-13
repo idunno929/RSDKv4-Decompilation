@@ -35,7 +35,7 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p dist
-          mapfile -t SOURCES < <(find RSDKv4 -type f -name '*.cpp' ! -path 'RSDKv4/NativeObjects/All.cpp' | sort)
+          mapfile -t SOURCES < <(find RSDKv4 -type f -name '*.cpp' ! -path 'RSDKv4/NativeObjects/All.cpp' ! -path 'RSDKv4/NativeObjects/MultiplayerHandler.cpp' ! -path 'RSDKv4/NativeObjects/MultiplayerScreen.cpp' | sort)
           em++ -O2 -std=c++17 \
             -I RSDKv4 \
             -I RSDKv4/NativeObjects \
