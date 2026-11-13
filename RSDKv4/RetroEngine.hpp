@@ -133,7 +133,8 @@ typedef unsigned int uint;
 
 #if RETRO_USING_OPENGL
 #if RETRO_PLATFORM == RETRO_WEB
-// Use Emscripten's legacy OpenGL compatibility headers together.
+// Expose extension prototypes (including framebuffer functions) from glext.h.
+#define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glext.h>
 #elif RETRO_PLATFORM == RETRO_ANDROID
