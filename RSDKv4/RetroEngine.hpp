@@ -352,6 +352,8 @@ public:
 
     void Init();
     void Run();
+    void RunFrame();
+    void Shutdown();
 
     bool LoadGameConfig(const char *filepath);
 #if RETRO_USE_MOD_LOADER
