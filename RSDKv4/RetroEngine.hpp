@@ -136,7 +136,6 @@ typedef unsigned int uint;
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #elif RETRO_PLATFORM == RETRO_ANDROID
-#if RETRO_PLATFORM == RETRO_ANDROID
 #define GL_GLEXT_PROTOTYPES
 
 #include <GLES/gl.h>
