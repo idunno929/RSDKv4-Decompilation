@@ -25,10 +25,11 @@ jobs:
           version: latest
           actions-cache-folder: 'emsdk-cache'
 
-      - name: Download TinyXML2
+      - name: Download TinyXML2 and stb_image
         run: |
           mkdir -p dependencies/all
           git clone --depth 1 https://github.com/leethomason/tinyxml2.git dependencies/all/tinyxml2
+          git clone --depth 1 https://github.com/nothings/stb.git dependencies/all/stb-image
 
       - name: Build browser engine
         shell: bash
@@ -40,6 +41,7 @@ jobs:
             -I RSDKv4 \
             -I RSDKv4/NativeObjects \
             -I dependencies/all/tinyxml2 \
+            -I dependencies/all/stb-image \
             -DBASE_PATH='""' \
             -sUSE_SDL=2 \
             -sUSE_VORBIS=1 \
