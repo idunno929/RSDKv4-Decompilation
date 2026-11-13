@@ -444,72 +444,80 @@ void RetroEngine::Init()
 #endif
 }
 
-void RetroEngine::Run()
+void RetroEngine::RunFrame()
 {
-    const Uint64 frequency = SDL_GetPerformanceFrequency();
-    Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
-    Uint64 frameStartBlunt = SDL_GetTicks(), frameEndBlunt = SDL_GetTicks();
+    static const Uint64 frequency = SDL_GetPerformanceFrequency();
+    static Uint64 frameStart = SDL_GetPerformanceCounter(), frameEnd = SDL_GetPerformanceCounter();
+    static Uint64 frameStartBlunt = SDL_GetTicks(), frameEndBlunt = SDL_GetTicks();
     float frameDelta      = 0.0f;
     float frameDeltaBlunt = 0.0f;
     Engine.deltaTime      = 0.0f;
 
-    while (running) {
 #if !RETRO_USE_ORIGINAL_CODE
-        frameStartBlunt = SDL_GetTicks();
-        frameDeltaBlunt = frameStartBlunt - frameEndBlunt;
-        ++frameDeltaBlunt;
-        if (frameDeltaBlunt < 1000.0f / (float)refreshRate) {
-            SDL_Delay(1000.0f / (float)refreshRate - frameDeltaBlunt);
-            continue;
-        }
-
-        frameStart = SDL_GetPerformanceCounter();
-        frameDelta = frameStart - frameEnd;
-        if (frameDelta < frequency / (float)refreshRate) {
-            continue;
-        }
-        frameEnd         = SDL_GetPerformanceCounter();
-        frameEndBlunt    = SDL_GetTicks();
-        Engine.deltaTime = 0.016666668;
+    frameStartBlunt = SDL_GetTicks();
+    frameDeltaBlunt = frameStartBlunt - frameEndBlunt;
+    ++frameDeltaBlunt;
+    if (frameDeltaBlunt < 1000.0f / (float)refreshRate) {
+#if RETRO_PLATFORM != RETRO_WEB
+        SDL_Delay(1000.0f / (float)refreshRate - frameDeltaBlunt);
 #endif
-        running = processEvents();
+        return;
+    }
 
-#if !RETRO_USE_ORIGINAL_CODE
-        for (int s = 0; s < gameSpeed; ++s) {
-            ProcessInput();
+    frameStart = SDL_GetPerformanceCounter();
+    frameDelta = frameStart - frameEnd;
+    if (frameDelta < frequency / (float)refreshRate)
+        return;
+
+    frameEnd         = SDL_GetPerformanceCounter();
+    frameEndBlunt    = SDL_GetTicks();
+    Engine.deltaTime = 0.016666668;
 #endif
 
+    running = processEvents();
+
 #if !RETRO_USE_ORIGINAL_CODE
-            if (!masterPaused || frameStep) {
+    for (int s = 0; s < gameSpeed; ++s) {
+        ProcessInput();
 #endif
-                ProcessNativeObjects();
-#if !RETRO_USE_ORIGINAL_CODE
-            }
-#endif
-        }
 
 #if !RETRO_USE_ORIGINAL_CODE
         if (!masterPaused || frameStep) {
 #endif
-            FlipScreen();
-
+            ProcessNativeObjects();
 #if !RETRO_USE_ORIGINAL_CODE
-#if RETRO_USING_OPENGL && RETRO_USING_SDL2
-            SDL_GL_SwapWindow(Engine.window);
-#endif
-            frameStep = false;
         }
 #endif
-
-        int hapticID = GetHapticEffectNum();
-        if (hapticID >= 0) {
-            // playHaptics(hapticID);
-        }
-        else if (hapticID == HAPTIC_STOP) {
-            // stopHaptics();
-        }
     }
 
+#if !RETRO_USE_ORIGINAL_CODE
+    if (!masterPaused || frameStep) {
+#endif
+        FlipScreen();
+
+#if RETRO_USE_ORIGINAL_CODE
+#if RETRO_USING_OPENGL && RETRO_USING_SDL2
+        SDL_GL_SwapWindow(Engine.window);
+#endif
+#else
+#if RETRO_USING_OPENGL && RETRO_USING_SDL2
+        SDL_GL_SwapWindow(Engine.window);
+#endif
+        frameStep = false;
+    }
+#endif
+
+    int hapticID = GetHapticEffectNum();
+    if (hapticID >= 0) {
+        // playHaptics(hapticID);
+    }
+    else if (hapticID == HAPTIC_STOP) {
+        // stopHaptics();
+    }
+}
+
+void RetroEngine::Shutdown()
+{
     ReleaseAudioDevice();
     ReleaseRenderDevice();
 #if !RETRO_USE_ORIGINAL_CODE
@@ -518,6 +526,41 @@ void RetroEngine::Run()
     disconnectNetwork();
 #endif
     writeSettings();
+#if RETRO_USE_MOD_LOADER
+    saveMods();
+#endif
+#endif
+
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+    SDL_Quit();
+#endif
+}
+
+#if RETRO_PLATFORM == RETRO_WEB
+static void RunWebFrame(void *)
+{
+    if (Engine.running) {
+        Engine.RunFrame();
+    }
+    else {
+        Engine.Shutdown();
+        emscripten_cancel_main_loop();
+    }
+}
+#endif
+
+void RetroEngine::Run()
+{
+#if RETRO_PLATFORM == RETRO_WEB
+    emscripten_set_main_loop_arg(RunWebFrame, nullptr, 0, 1);
+#else
+    while (running)
+        RunFrame();
+
+    Shutdown();
+#endif
+}
+
 #if RETRO_USE_MOD_LOADER
     saveMods();
 #endif
