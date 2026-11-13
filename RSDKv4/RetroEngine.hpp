@@ -43,13 +43,11 @@ typedef unsigned int uint;
 #define RETRO_STANDARD (0)
 #define RETRO_MOBILE   (1)
 
-#if defined _WIN32
-#if defined __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 #define RETRO_PLATFORM   (RETRO_WEB)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
-#elif defined _WIN32
-
-#if defined WINAPI_FAMILY
+#elif defined(_WIN32)
+#if defined(WINAPI_FAMILY)
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
@@ -63,8 +61,7 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
-
-#elif defined __APPLE__
+#elif defined(__APPLE__)
 #if __IPHONEOS__
 #define RETRO_PLATFORM   (RETRO_iOS)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
@@ -72,7 +69,7 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM   (RETRO_OSX)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
-#elif defined __ANDROID__
+#elif defined(__ANDROID__)
 #define RETRO_PLATFORM   (RETRO_ANDROID)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
 #include <jni.h>
@@ -81,7 +78,6 @@ typedef unsigned int uint;
 #define RETRO_PLATFORM   (RETRO_WIN)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #endif
-
 #define DEFAULT_SCREEN_XSIZE 424
 #define DEFAULT_FULLSCREEN   false
 #define RETRO_USING_MOUSE
