@@ -133,7 +133,8 @@ typedef unsigned int uint;
 
 #if RETRO_USING_OPENGL
 #if RETRO_PLATFORM == RETRO_WEB
-#include <GLES2/gl2.h>
+// Emscripten's compatibility header exposes the fixed-function API used by this renderer.
+#include <GL/gl.h>
 #include <GLES2/gl2ext.h>
 #elif RETRO_PLATFORM == RETRO_ANDROID
 #define GL_GLEXT_PROTOTYPES
