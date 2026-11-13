@@ -116,10 +116,8 @@ typedef unsigned int uint;
 #define RETRO_RENDERTYPE (RETRO_SW_RENDER)
 #endif
 
-#if RETRO_PLATFORM == RETRO_WEB
-#undef RETRO_RENDERTYPE
-#define RETRO_RENDERTYPE (RETRO_HW_RENDER)
-#endif
+// Keep the software rasterizer for web builds. The browser renderer uploads
+// its framebuffer to the OpenGL texture in TransferRetroBuffer().
 
 #ifdef USE_HW_REN
 #undef RETRO_RENDERTYPE
