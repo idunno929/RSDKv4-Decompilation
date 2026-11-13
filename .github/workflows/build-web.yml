@@ -1,1 +1,73 @@
+name: Build RSDKv4 WebAssembly
 
+on:
+  push:
+    branches:
+      - webassembly-build
+    paths:
+      - 'RSDKv4/**'
+      - '.github/workflows/build-web.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Download TinyXML2
+        run: |
+          mkdir -p dependencies/all
+          git clone --depth 1 https://github.com/leethomason/tinyxml2.git dependencies/all/tinyxml2
+
+      - name: Build browser engine
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p dist
+          mapfile -t SOURCES < <(find RSDKv4 -type f -name '*.cpp' ! -path 'RSDKv4/NativeObjects/All.cpp' | sort)
+          em++ -O2 -std=c++17 \
+            -I RSDKv4 \
+            -I RSDKv4/NativeObjects \
+            -I dependencies/all/tinyxml2 \
+            -DBASE_PATH='""' \
+            -sUSE_SDL=2 \
+            -sUSE_VORBIS=1 \
+            -sUSE_OGG=1 \
+            -sLEGACY_GL_EMULATION=1 \
+            -sMIN_WEBGL_VERSION=1 \
+            -sMAX_WEBGL_VERSION=2 \
+            -sALLOW_MEMORY_GROWTH=1 \
+            -sINITIAL_MEMORY=134217728 \
+            -sSTACK_SIZE=1048576 \
+            -sFORCE_FILESYSTEM=1 \
+            -sASSERTIONS=1 \
+            "${SOURCES[@]}" \
+            dependencies/all/tinyxml2/tinyxml2.cpp \
+            RSDKv4/fcaseopen.c \
+            -o dist/RSDKv4.html
+
+      - name: Verify generated browser files
+        run: |
+          test -s dist/RSDKv4.html
+          test -s dist/RSDKv4.js
+          test -s dist/RSDKv4.wasm
+          ls -lh dist
+
+      - name: Upload WebAssembly build
+        uses: actions/upload-artifact@v4
+        with:
+          name: rsdkv4-web-engine
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
