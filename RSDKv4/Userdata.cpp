@@ -903,7 +903,9 @@ void Connect2PVS(int *gameLength, int *itemMode)
     matchValueData[1]      = 0;
     matchValueReadPos      = 0;
     matchValueWritePos     = 0;
+#if RETRO_USE_NETWORKING
     Engine.gameMode        = ENGINE_CONNECT2PVS;
+#endif
     // PauseSound();
     // actual connection code
     vsGameLength = *gameLength;
@@ -1032,7 +1034,9 @@ void receive2PVSMatchCode(int code)
     CREATE_ENTITY(RetroGameLoop); // hack
     if (Engine.gameDeviceType == RETRO_MOBILE)
         CREATE_ENTITY(VirtualDPad);
+#if RETRO_USE_NETWORKING
     CREATE_ENTITY(MultiplayerHandler);
+#endif
 }
 
 void ShowPromoPopup(int *id, const char *popupName) { printLog("Attempting to show promo popup: \"%s\" (%d)", popupName, id ? *id : 0); }
