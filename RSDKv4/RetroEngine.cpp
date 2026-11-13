@@ -526,6 +526,16 @@ void RetroEngine::Shutdown()
     disconnectNetwork();
 #endif
     writeSettings();
+#if RETRO_USE_MOD_LOADER
+    saveMods();
+#endif
+#endif
+
+#if RETRO_USING_SDL1 || RETRO_USING_SDL2
+    SDL_Quit();
+#endif
+}
+
 #if RETRO_PLATFORM == RETRO_WEB
 static void RunWebFrame(void *)
 {
@@ -548,16 +558,6 @@ void RetroEngine::Run()
         RunFrame();
 
     Shutdown();
-#endif
-}
-
-#if RETRO_USE_MOD_LOADER
-    saveMods();
-#endif
-#endif
-
-#if RETRO_USING_SDL1 || RETRO_USING_SDL2
-    SDL_Quit();
 #endif
 }
 
